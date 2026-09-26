@@ -135,5 +135,10 @@
   "Add %lu items to the queue? Originals are prepared one at a time. Keep the app open.": "Add %lu items to the queue? Originals are prepared one at a time. Keep the app open.",
   "No accessible photos in this album. Check photo permissions.": "No accessible photos in this album. Check photo permissions.",
   "Cancel all uploads": "Cancel all uploads",
-  "Cancel every pending and in-progress upload?": "Cancel every pending and in-progress upload?"
+  "Cancel every pending and in-progress upload?": "Cancel every pending and in-progress upload?",
+  "Backup start date": "Backup start date",
+  "All photos": "All photos",
+  "Only photos and videos taken on or after this date will be backed up.": "Only photos and videos taken on or after this date will be backed up.",
+  "Save": "Save",
+  "\nSkipped %lu (before start date)": "\nSkipped %lu (before start date)"
 }

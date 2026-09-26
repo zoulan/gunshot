@@ -1,5 +1,6 @@
 #import "../Shared/GSPhotosCompatibility.h"
 #import "../Shared/GSLocalization.h"
+#import "../Shared/GSBackupPolicy.h"
 #import "GSBackupRequests.h"
 #import "GSNativeRouting.h"
 #import "GSNativeAccount.h"
@@ -90,6 +91,8 @@ static void GSStart(id request,SEL selector,IMP original){
  PHAsset *asset=GSGet(request,@"asset");
  // Export the PHAsset original, not a compressed GMUUploadAsset.
  if(![asset isKindOfClass:PHAsset.class]){GSCount(@"unsupported");GSFail(request,1);return;}
+ NSDate *since=GSBackupSinceDate();
+ if(since&&asset.creationDate&&[asset.creationDate compare:since]==NSOrderedAscending){GSCount(@"beforeStartDate");GSFail(request,1);return;}
  BOOL reconciling;@synchronized(GSLock){reconciling=[GSReconciling containsObject:asset.localIdentifier];}
  if(reconciling){((void(*)(id,SEL))original)(request,selector);return;}
  GSBackupTransfer *transfer=[GSBackupTransfer new];transfer.localID=asset.localIdentifier;

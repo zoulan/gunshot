@@ -135,5 +135,10 @@
   "Add %lu items to the queue? Originals are prepared one at a time. Keep the app open.": "%lu件をキューに追加しますか？原本を1件ずつ準備します。アプリを開いたままにしてください。",
   "No accessible photos in this album. Check photo permissions.": "このアルバムにアクセス可能な写真がありません。写真のアクセス権を確認してください。",
   "Cancel all uploads": "すべてのアップロードをキャンセル",
-  "Cancel every pending and in-progress upload?": "待機中およびアップロード中のすべての項目をキャンセルしますか？"
+  "Cancel every pending and in-progress upload?": "待機中およびアップロード中のすべての項目をキャンセルしますか？",
+  "Backup start date": "バックアップ開始日",
+  "All photos": "すべての写真",
+  "Only photos and videos taken on or after this date will be backed up.": "この日付以降に撮影された写真とビデオのみバックアップします。",
+  "Save": "保存",
+  "\nSkipped %lu (before start date)": "\n%lu 件をスキップ（開始日より前）"
 }

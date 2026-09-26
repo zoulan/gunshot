@@ -1,5 +1,6 @@
 #import "../Shared/GSPhotosCompatibility.h"
 #import "../Shared/GSLocalization.h"
+#import "../Shared/GSBackupPolicy.h"
 #import "GSNativeRouting.h"
 #import "GSExporter.h"
 #import "../Shared/IPCProtocol.h"
@@ -52,6 +53,10 @@ static void GSRoute(id localAssets){
  GSInitializeImport();@synchronized(GSImportLock){GSImportStatus[@"actions"]=@([GSImportStatus[@"actions"]unsignedIntegerValue]+1);}
  if(!valid||!assets.count){GSImportResult(@"The selected photos could not be retrieved.",0);return;}
  NSString *account=[GSNativeRoutingAccount()copy];NSArray *selection=[assets copy];
+ NSDate *since=GSBackupSinceDate();
+ if(since){NSMutableArray *recent=[NSMutableArray array];
+  for(PHAsset *asset in selection)if(!asset.creationDate||[asset.creationDate compare:since]!=NSOrderedAscending)[recent addObject:asset];
+  selection=recent;}
  dispatch_async(dispatch_get_main_queue(),^{
   NSDictionary *native=GSNativeAccountSummary();NSString *identity=native[@"identifier"];
   if(![account isEqual:native[@"email"]]||!GSNativeIdentityMatches(identity)){GSImportResult(@"The signed-in account does not match the upload destination.",0);return;}

@@ -2,6 +2,7 @@
 #import "GSExporter.h"
 #import "GSNativeAccount.h"
 #import "../Shared/IPCProtocol.h"
+#import "../Shared/GSBackupPolicy.h"
 
 @interface GSImportBatch : NSObject
 @property(atomic,copy) NSString *stopReason;
@@ -37,7 +38,7 @@ BOOL GSStartBatchImport(NSUInteger count,NSString *source,BOOL assets,GSBatchIte
  if(!count||!provider||!account.length)return NO;
  GSImportBatch *batch=[GSImportBatch new];batch.account=[account copy];batch.identity=[identity copy];
  source=source&&[@[@"picker",@"album",@"share"]containsObject:source]?source:@"share";
- NSMutableDictionary *state=[@{@"active":@YES,@"source":source,@"total":@(count),@"processed":@0,@"queued":@0,@"failed":@0,@"remaining":@(count),@"stage":@"starting"}mutableCopy];
+ NSMutableDictionary *state=[@{@"active":@YES,@"source":source,@"total":@(count),@"processed":@0,@"queued":@0,@"failed":@0,@"skipped":@0,@"remaining":@(count),@"stage":@"starting"}mutableCopy];
  @synchronized(GSImportBatch.class){
   if(GSCurrentBatch)return NO;
   GSCurrentBatch=batch;GSLastBatch=[state copy];
@@ -48,7 +49,7 @@ BOOL GSStartBatchImport(NSUInteger count,NSString *source,BOOL assets,GSBatchIte
   NSDictionary *options=reason?nil:GSRequest(@{@"op":@"options"},nil);
   if(!reason&&!options)reason=@"service_unavailable";
   NSString *quality=options[@"quality"]?:@"original";
-  NSUInteger processed=0,queued=0,failed=0;
+  NSUInteger processed=0,queued=0,failed=0,skipped=0;
   NSMutableDictionary *failures=[NSMutableDictionary dictionary];
   NSTimeInterval lastUpdate=0;
   for(NSUInteger index=0;index<count&&!reason;index++){@autoreleasepool{
@@ -61,8 +62,14 @@ BOOL GSStartBatchImport(NSUInteger count,NSString *source,BOOL assets,GSBatchIte
     BOOL created=[NSFileManager.defaultManager createDirectoryAtURL:directory withIntermediateDirectories:YES attributes:@{NSFilePosixPermissions:@0700} error:&error];
     NSArray *files=nil;NSDate *date=nil;BOOL scoped=NO;
     if(!created)reason=@"local_storage";
-    else if(assets){PHAsset *asset=item;date=asset.creationDate;files=GSExportAsset(asset,directory,&error);}
-    else {NSURL *url=item;scoped=[url startAccessingSecurityScopedResource];NSDictionary *attr=[NSFileManager.defaultManager attributesOfItemAtPath:url.path error:&error];if(attr){files=@[url];date=attr[NSFileModificationDate];}}
+    else if(assets){PHAsset *asset=item;date=asset.creationDate;
+     NSDate *since=GSBackupSinceDate();
+     // Skip before exporting: old albums would otherwise pay full export cost.
+     if(since&&date&&[date compare:since]==NSOrderedAscending)files=@[];
+     else files=GSExportAsset(asset,directory,&error);}
+    else {NSURL *url=item;scoped=[url startAccessingSecurityScopedResource];NSDictionary *attr=[NSFileManager.defaultManager attributesOfItemAtPath:url.path error:&error];if(attr){files=@[url];date=attr[NSFileModificationDate];
+     NSDate *since=GSBackupSinceDate();
+     if(since&&date&&[date compare:since]==NSOrderedAscending)files=@[];}}
     if(!reason)reason=GSCheckBatchAccount(batch); // Cloud export may outlive sign-in or cancellation.
     if(!reason&&!files){
      if([error.domain isEqual:NSCocoaErrorDomain]&&error.code==NSFileWriteOutOfSpaceError)reason=@"local_storage";
@@ -72,11 +79,11 @@ BOOL GSStartBatchImport(NSUInteger count,NSString *source,BOOL assets,GSBatchIte
      state[@"stage"]=@"queueing";GSRecordBatch(state);
      NSString *job=GSImportFiles(files,batch.account,quality,date,&error);
      if(job){processed++;queued++;}else reason=@"queue_rejected";
-    }
+    }else if(files)skipped++; // Empty sentinel array: item predates the start date.
     if(scoped)[item stopAccessingSecurityScopedResource];
     [NSFileManager.defaultManager removeItemAtURL:directory error:nil];
    }
-   state[@"processed"]=@(processed);state[@"queued"]=@(queued);state[@"failed"]=@(failed);state[@"remaining"]=@(count-processed);state[@"failureCodes"]=[failures copy];GSRecordBatch(state);
+   state[@"processed"]=@(processed);state[@"queued"]=@(queued);state[@"failed"]=@(failed);state[@"skipped"]=@(skipped);state[@"remaining"]=@(count-processed);state[@"failureCodes"]=[failures copy];GSRecordBatch(state);
    NSTimeInterval now=NSProcessInfo.processInfo.systemUptime;
    if(progress&&now-lastUpdate>=0.25){lastUpdate=now;NSDictionary *snapshot=[state copy];dispatch_async(dispatch_get_main_queue(),^{progress(snapshot);});}
   }}

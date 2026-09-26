@@ -135,5 +135,10 @@
   "Add %lu items to the queue? Originals are prepared one at a time. Keep the app open.": "Thêm %lu mục vào hàng đợi? Các bản gốc được chuẩn bị lần lượt. Hãy giữ ứng dụng mở.",
   "No accessible photos in this album. Check photo permissions.": "Không có ảnh nào có thể truy cập trong album này. Kiểm tra quyền đối với ảnh.",
   "Cancel all uploads": "Hủy tất cả bản tải lên",
-  "Cancel every pending and in-progress upload?": "Hủy mọi mục đang chờ và đang tải lên?"
+  "Cancel every pending and in-progress upload?": "Hủy mọi mục đang chờ và đang tải lên?",
+  "Backup start date": "Ngày bắt đầu sao lưu",
+  "All photos": "Tất cả ảnh",
+  "Only photos and videos taken on or after this date will be backed up.": "Chỉ sao lưu ảnh và video được tạo từ ngày này trở đi.",
+  "Save": "Lưu",
+  "\nSkipped %lu (before start date)": "\nĐã bỏ qua %lu (trước ngày bắt đầu)"
 }

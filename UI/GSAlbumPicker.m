@@ -1,5 +1,6 @@
 #import "GSAlbumPicker.h"
 #import "../Shared/GSLocalization.h"
+#import "../Shared/GSBackupPolicy.h"
 @interface GSAlbumPicker ()
 @property(nonatomic,strong) NSArray<PHCollection *> *collections;
 @property(nonatomic) BOOL loading;
@@ -47,6 +48,8 @@
  self.loading=YES;
  dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY,0),^{@autoreleasepool{
   PHFetchOptions *options=[PHFetchOptions new];options.includeHiddenAssets=NO;
+  NSDate *since=GSBackupSinceDate();
+  if(since)options.predicate=[NSPredicate predicateWithFormat:@"creationDate >= %@",since];
   PHFetchResult *assets=[PHAsset fetchAssetsInAssetCollection:(PHAssetCollection *)collection options:options];
   dispatch_async(dispatch_get_main_queue(),^{
    self.loading=NO;
