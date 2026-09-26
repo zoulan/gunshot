@@ -126,7 +126,7 @@ static BOOL GSCheckPhotosGlass(GSPanel *panel,UIWindow *window){
   for(NSString *version in @[@"7.92",@"7.92.0",@"7.100.0",@"8.0.0"]){GSGlassFixturePhotosVersion=version;GS_GLASS_CHECK(GSPhotosGlassAvailable()==modern);}
   GSGlassFixturePhotosVersion=@"7.92.0";[NSUserDefaults.standardUserDefaults setBool:NO forKey:@"GSPhotosBottomBarLiquidGlass"];
 
-  UITableViewCell *cell=[panel tableView:panel.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:6]];UISwitch *toggle=(UISwitch *)cell.accessoryView;
+  UITableViewCell *cell=[panel tableView:panel.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:7]];UISwitch *toggle=(UISwitch *)cell.accessoryView;
   GS_GLASS_CHECK([cell.textLabel.text isEqual:@"Google Photos · Liquid Glass"]&&[toggle isKindOfClass:UISwitch.class]&&!toggle.on&&toggle.enabled==modern);
   if(!modern){GS_GLASS_CHECK(!GSPhotosGlassEnabled());return YES;}
 
