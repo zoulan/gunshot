@@ -169,7 +169,7 @@
  [groups addObject:@{@"title":GSL(@"Account"),@"rows":accountRows}];
  [groups addObject:@{@"title":GSL(@"Upload settings"),@"rows":@[@0,@1,@2,@3,@4,@5],@"footer":[GSL(@"Pixel 1 requests original quality without storage usage (Pixel XL). Quality is fixed when queued. Verify storage usage and original data in Google Photos.\n") stringByAppendingString:GS_QUEUED_HELP]}];
  if(GSIsGooglePhotos())[groups addObject:@{@"title":GSL(@"Google Photos integration"),@"rows":@[@10],@"footer":GS_BACKUP_HELP}];
- [groups addObject:@{@"title":GSL(@"Queue management"),@"rows":@[@8,@9]}];
+ [groups addObject:@{@"title":GSL(@"Queue management"),@"rows":@[@8,@9,@20]}];
  if(GSIsGooglePhotos())[groups addObject:@{@"title":GSL(@"Diagnostics"),@"rows":@[@11,@12],@"footer":GSL(@"Troubleshoot compatibility. Tokens and media are never recorded.")}];
  [groups addObject:@{@"title":GSL(@"Appearance"),@"rows":GSIsGooglePhotos()?@[@15,@16,@19]:@[@15],@"footer":GSIsGooglePhotos()?GSL(@"Reopen the profile menu to apply changes. Unlimited storage affects only the display; account limits and upload quality stay unchanged."):GSL(@"Reopen the profile menu to update its language.")}];
  return groups;
@@ -234,8 +234,8 @@
  }
  NSInteger control=[self controlAtPath:path];
  if(control>=0){
-  NSArray *titles=@[GSL(@"Quality"),GSL(@"Concurrent uploads"),GSL(@"Retry limit"),GSL(@"Wi-Fi only"),GSL(@"Charging only"),GSL(@"Pause uploads"),GSL(@"Destination account"),GSL(@"Remove account from GoToHP"),GSL(@"Retry failed uploads"),GSL(@"Clear completed history"),GS_BACKUP_TITLE,GSL(@"Upload diagnostics"),GSL(@"Export diagnostics"),GSL(@"Connect or refresh account"),GSL(@"Choose photos and videos"),GSL(@"Language"),GSL(@"Show unlimited storage"),GSL(@"Choose album"),GSL(@"Stop preparing"),@"Google Photos · Liquid Glass"];
-  NSArray *icons=@[@"photo",@"square.stack.3d.up",@"arrow.clockwise",@"wifi",@"battery.100.bolt",@"pause.circle",@"person.crop.circle.badge.checkmark",@"person.crop.circle.badge.minus",@"arrow.clockwise.circle",@"checkmark.circle",@"arrow.triangle.branch",@"waveform.path.ecg",@"square.and.arrow.up",@"person.crop.circle.badge.checkmark",@"plus.circle",@"globe",@"cloud",@"rectangle.stack",@"stop.circle",@"rectangle.bottomhalf.inset.filled"];
+  NSArray *titles=@[GSL(@"Quality"),GSL(@"Concurrent uploads"),GSL(@"Retry limit"),GSL(@"Wi-Fi only"),GSL(@"Charging only"),GSL(@"Pause uploads"),GSL(@"Destination account"),GSL(@"Remove account from GoToHP"),GSL(@"Retry failed uploads"),GSL(@"Clear completed history"),GS_BACKUP_TITLE,GSL(@"Upload diagnostics"),GSL(@"Export diagnostics"),GSL(@"Connect or refresh account"),GSL(@"Choose photos and videos"),GSL(@"Language"),GSL(@"Show unlimited storage"),GSL(@"Choose album"),GSL(@"Stop preparing"),@"Google Photos · Liquid Glass",GSL(@"Cancel all uploads")];
+  NSArray *icons=@[@"photo",@"square.stack.3d.up",@"arrow.clockwise",@"wifi",@"battery.100.bolt",@"pause.circle",@"person.crop.circle.badge.checkmark",@"person.crop.circle.badge.minus",@"arrow.clockwise.circle",@"checkmark.circle",@"arrow.triangle.branch",@"waveform.path.ecg",@"square.and.arrow.up",@"person.crop.circle.badge.checkmark",@"plus.circle",@"globe",@"cloud",@"rectangle.stack",@"stop.circle",@"rectangle.bottomhalf.inset.filled",@"xmark.octagon"];
   cell.textLabel.text=titles[control];cell.imageView.image=[UIImage systemImageNamed:icons[control]];
   cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
   if(control==17)cell.detailTextLabel.text=GSL(@"Upload an entire album; browse folders to choose an album.");
@@ -251,6 +251,7 @@
   if(control==6)cell.detailTextLabel.text=self.accounts[@"selected"];
   if(control==13)cell.detailTextLabel.text=GSL(@"Check the connection for the signed-in account");
   if(control==7)cell.textLabel.textColor=UIColor.systemRedColor;
+  if(control==20){cell.textLabel.textColor=UIColor.systemRedColor;cell.accessoryType=UITableViewCellAccessoryNone;}
   if((control>=3&&control<=5)||control==10||control==11||control==16||control==19){
    UISwitch *toggle=[UISwitch new];toggle.tag=control;toggle.on=[self switchValueForControl:control];
    toggle.accessibilityLabel=titles[control];toggle.onTintColor=tableView.tintColor;
@@ -408,8 +409,9 @@
   if(control==11){GSSetUploadDiagnostics(!GSUploadDiagnosticsEnabled());[self reloadTablePreservingPosition];return;}
   if(control<3){[self chooseValueForControl:control];return;}
   if(control<6)return; // Use the visible switch; no hidden value cycling.
-  if(control==6||control==7)[self accountAction:control==7];
-  else [self request:@{@"op":control==8?@"retry_failed":@"clear_completed"}];
+  if(control==6||control==7){[self accountAction:control==7];return;}
+  if(control==20){[self confirmCancelAll];return;}
+  [self request:@{@"op":control==8?@"retry_failed":@"clear_completed"}];
  }else if(path.section==self.queueSection&&path.row<self.jobs.count){
  NSDictionary *j=self.jobs[path.row];NSString *state=j[@"state"];
  UIAlertController *a=[UIAlertController alertControllerWithTitle:j[@"resources"][0][@"name"] message:j[@"error"] preferredStyle:UIAlertControllerStyleActionSheet];
@@ -417,6 +419,12 @@
  if(![state isEqual:@"completed"]&&![state isEqual:@"cancelled"])[a addAction:[UIAlertAction actionWithTitle:GSL(@"Cancel upload") style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action){[self request:@{@"op":@"cancel",@"id":j[@"id"]}];}]];
  [a addAction:[UIAlertAction actionWithTitle:GSL(@"Close") style:UIAlertActionStyleCancel handler:nil]];[self sheet:a];
  }
+}
+- (void)confirmCancelAll{
+ UIAlertController *a=[UIAlertController alertControllerWithTitle:GSL(@"Cancel all uploads") message:GSL(@"Cancel every pending and in-progress upload?") preferredStyle:UIAlertControllerStyleAlert];
+ [a addAction:[UIAlertAction actionWithTitle:GSL(@"Cancel") style:UIAlertActionStyleCancel handler:nil]];
+ [a addAction:[UIAlertAction actionWithTitle:GSL(@"Cancel all uploads") style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action){[self request:@{@"op":@"cancel_all"}];}]];
+ [self sheet:a];
 }
 - (void)choose{
  if(![self.accounts[@"selected"]length]){[self message:GS_ACCOUNT_HELP];return;}

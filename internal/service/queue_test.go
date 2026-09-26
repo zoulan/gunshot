@@ -161,6 +161,55 @@ func TestCancelAndCommitRace(t *testing.T) {
 		t.Fatal("successful commit incorrectly labelled cancelled")
 	}
 }
+func TestCancelAll(t *testing.T) {
+	started := make(chan struct{})
+	release := make(chan struct{})
+	e := newEngine(t, func(ctx context.Context, _ []string, _ string, _ string, cb func(Progress)) (string, error) {
+		close(started)
+		<-release
+		return "", ctx.Err()
+	})
+	active := importTest(t, e, "original")
+	pending := importTest(t, e, "quota")
+	done := importTest(t, e, "saver")
+	done.State = "completed"
+	done.MediaKey = "key"
+	if err := e.save(); err != nil {
+		t.Fatal(err)
+	}
+	e.online = true
+	e.wifi = true
+	e.Tick()
+	<-started
+	e.mu.Lock()
+	v, err := e.handle(Request{Op: "cancel_all"}, "photos")
+	e.mu.Unlock()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v.(map[string]any)["cancelled"] != 2 {
+		t.Fatalf("wrong cancelled count: %v", v)
+	}
+	if pending.State != "cancelled" || done.State != "completed" || !active.CancelRequested {
+		t.Fatalf("unexpected states: %s/%s/%v", pending.State, done.State, active.CancelRequested)
+	}
+	if _, err := os.Stat(e.jobDir(pending.ID)); !os.IsNotExist(err) {
+		t.Fatal("pending staging not removed")
+	}
+	close(release)
+	waitIdle(t, e)
+	if active.State != "cancelled" {
+		t.Fatalf("active job not cancelled: %s", active.State)
+	}
+	var reply struct {
+		OK bool
+	}
+	e2 := newEngine(t, nil)
+	json.Unmarshal(e2.HandleJSON([]byte(`{"op":"cancel_all"}`), "daemon"), &reply)
+	if reply.OK {
+		t.Fatal("daemon accepted cancel_all")
+	}
+}
 func TestUncertainCommitDoesNotAutoRetry(t *testing.T) {
 	e := newEngine(t, func(ctx context.Context, _ []string, _ string, _ string, cb func(Progress)) (string, error) {
 		cb(Progress{State: "committing"})

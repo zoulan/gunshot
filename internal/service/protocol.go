@@ -11,7 +11,7 @@ func roleAllowed(role, op string) bool {
 	if role == "daemon" {
 		return op == "conditions"
 	}
-	common := op == "upload_summary" || op == "job" || op == "ping" || op == "list" || op == "accounts" || op == "options" || op == "retry" || op == "cancel" || op == "clear_completed" || op == "retry_failed"
+	common := op == "upload_summary" || op == "job" || op == "ping" || op == "list" || op == "accounts" || op == "options" || op == "retry" || op == "cancel" || op == "cancel_all" || op == "clear_completed" || op == "retry_failed"
 	if role == "settings" || role == "googlephotos" {
 		return common || (role == "googlephotos" && (op == "begin" || op == "append" || op == "seal" || op == "account_native" || op == "native_bearer" || op == "native_bearer_clear")) || op == "configure" || op == "account_add" || op == "account_remove" || op == "account_select"
 	}
@@ -115,6 +115,35 @@ func (e *Engine) handle(r Request, role string) (any, error) {
 		clear(e.state.Jobs[len(next):]) // Release removed jobs held by the backing array.
 		e.state.Jobs = next
 		return nil, e.save()
+	case "cancel_all":
+		removed := []string{}
+		count := 0
+		for _, j := range e.state.Jobs {
+			if j.State == "completed" || j.State == "cancelled" {
+				continue
+			}
+			// Active jobs follow the single-cancel path: execute() marks them
+			// cancelled once the runner unwinds. Everything else lands here.
+			if c := e.active[j.ID]; c != nil {
+				j.CancelRequested = true
+				c()
+			} else {
+				j.State = "cancelled"
+				delete(e.importHashes, j.ID)
+				removed = append(removed, j.ID)
+			}
+			count++
+		}
+		if count == 0 {
+			return nil, nil
+		}
+		err := e.save()
+		if err == nil {
+			for _, id := range removed {
+				_ = os.RemoveAll(e.jobDir(id))
+			}
+		}
+		return map[string]any{"cancelled": count}, err
 	case "retry_failed":
 		changed := false
 		for _, j := range e.state.Jobs {

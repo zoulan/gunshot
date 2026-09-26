@@ -133,5 +133,7 @@
   "Open folder": "打开文件夹",
   "Upload all accessible photos and videos": "上传所有可读取的媒体",
   "Add %lu items to the queue? Originals are prepared one at a time. Keep the app open.": "是否要添加 %lu 项内容到队列？原图的准备工作将逐一进行，请保持 App 开启",
-  "No accessible photos in this album. Check photo permissions.": "此相册中无可访问的图片，请检查访问权限"
+  "No accessible photos in this album. Check photo permissions.": "此相册中无可访问的图片，请检查访问权限",
+  "Cancel all uploads": "取消全部上传",
+  "Cancel every pending and in-progress upload?": "要取消所有等待中及上传中的任务吗？"
 }
