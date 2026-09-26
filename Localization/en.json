@@ -136,9 +136,11 @@
   "No accessible photos in this album. Check photo permissions.": "No accessible photos in this album. Check photo permissions.",
   "Cancel all uploads": "Cancel all uploads",
   "Cancel every pending and in-progress upload?": "Cancel every pending and in-progress upload?",
-  "Backup start date": "Backup start date",
   "All photos": "All photos",
-  "Only photos and videos taken on or after this date will be backed up.": "Only photos and videos taken on or after this date will be backed up.",
   "Save": "Save",
-  "\nSkipped %lu (before start date)": "\nSkipped %lu (before start date)"
+  "\nSkipped %lu (before start date)": "\nSkipped %lu (before start date)",
+  "Back up all photos": "Back up all photos",
+  "Back up new photos: %@": "Back up new photos: %@",
+  "Backup time range": "Backup time range",
+  "Not set": "Not set"
 }
