@@ -68,7 +68,7 @@
  for(NSUInteger i=0;i<3;i++){
   UIView *line=[UIView new];line.backgroundColor=[UIColor.separatorColor colorWithAlphaComponent:0.5];line.translatesAutoresizingMaskIntoConstraints=NO;[card.contentView addSubview:line];
   UIButton *b=[UIButton buttonWithType:UIButtonTypeSystem];[b setTitle:names[i] forState:UIControlStateNormal];b.titleLabel.font=[UIFont systemFontOfSize:17];if(i==1)b.titleLabel.font=[UIFont boldSystemFontOfSize:17];if(i==2)b.titleLabel.textColor=UIColor.secondaryLabelColor;b.translatesAutoresizingMaskIntoConstraints=NO;b.tag=i;[b addTarget:self action:NSSelectorFromString(sels[i]) forControlEvents:UIControlEventTouchUpInside];[card.contentView addSubview:b];
-  UIView *anchor=prev?:msg;
+  UIView *anchor=prev?:self.picker;
   [card.contentView addConstraints:@[
    [NSLayoutConstraint constraintWithItem:line attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:anchor attribute:NSLayoutAttributeBottom multiplier:1 constant:6],
    [NSLayoutConstraint constraintWithItem:line attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeLeading multiplier:1 constant:0],
