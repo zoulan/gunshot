@@ -47,6 +47,63 @@
 @property(nonatomic,copy) NSString *statusLanguage;
 @property(nonatomic,strong) NSIndexPath *sheetSourcePath;
 @end
+@interface GSDateSheet : UIViewController
+@property(nonatomic,strong) UIDatePicker *picker;
+@property(nonatomic,copy) void (^onSave)(NSDate *date);
+@property(nonatomic,copy) void (^onClear)(void);
+@end
+@implementation GSDateSheet
+- (void)viewDidLoad{
+ [super viewDidLoad];
+ self.view.backgroundColor=UIColor.clearColor;
+ UIView *dim=[UIView new];dim.backgroundColor=[UIColor.blackColor colorWithAlphaComponent:0.4];dim.translatesAutoresizingMaskIntoConstraints=NO;[self.view addSubview:dim];
+ [self.view addConstraints:@[[NSLayoutConstraint constraintWithItem:dim attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:10000],[NSLayoutConstraint constraintWithItem:dim attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:10000],[NSLayoutConstraint constraintWithItem:dim attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1 constant:0],[NSLayoutConstraint constraintWithItem:dim attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterY multiplier:1 constant:0]]];
+ [dim addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(cancelTapped)]];
+ UIVisualEffectView *card=[[UIVisualEffectView alloc]initWithEffect:[UIBlurEffect effectWithStyle:UIBlurEffectStyleSystemMaterial]];card.layer.cornerRadius=14;card.clipsToBounds=YES;card.translatesAutoresizingMaskIntoConstraints=NO;[self.view addSubview:card];
+ UILabel *title=[UILabel new];title.text=GSL(@"Backup start date");title.font=[UIFont boldSystemFontOfSize:17];title.textAlignment=NSTextAlignmentCenter;title.translatesAutoresizingMaskIntoConstraints=NO;[card.contentView addSubview:title];
+ UILabel *msg=[UILabel new];msg.text=GSL(@"Only photos and videos taken on or after this date will be backed up.");msg.font=[UIFont systemFontOfSize:13];msg.textColor=UIColor.secondaryLabelColor;msg.textAlignment=NSTextAlignmentCenter;msg.numberOfLines=0;msg.translatesAutoresizingMaskIntoConstraints=NO;[card.contentView addSubview:msg];
+ self.picker=[UIDatePicker new];self.picker.datePickerMode=UIDatePickerModeDate;self.picker.preferredDatePickerStyle=UIDatePickerStyleWheels;NSDate *since=GSBackupSinceDate();if(since)self.picker.date=since;self.picker.translatesAutoresizingMaskIntoConstraints=NO;[card.contentView addSubview:self.picker];
+ NSArray *names=@[GSL(@"All photos"),GSL(@"Save"),GSL(@"Cancel")];
+ UIView *prev=nil;NSArray *sels=@[@"allTapped",@"saveTapped",@"cancelTapped"];
+ for(NSUInteger i=0;i<3;i++){
+  UIView *line=[UIView new];line.backgroundColor=[UIColor.separatorColor colorWithAlphaComponent:0.5];line.translatesAutoresizingMaskIntoConstraints=NO;[card.contentView addSubview:line];
+  UIButton *b=[UIButton buttonWithType:UIButtonTypeSystem];[b setTitle:names[i] forState:UIControlStateNormal];b.titleLabel.font=[UIFont systemFontOfSize:17];if(i==1)b.titleLabel.font=[UIFont boldSystemFontOfSize:17];if(i==2)b.titleLabel.textColor=UIColor.secondaryLabelColor;b.translatesAutoresizingMaskIntoConstraints=NO;b.tag=i;[b addTarget:self action:NSSelectorFromString(sels[i]) forControlEvents:UIControlEventTouchUpInside];[card.contentView addSubview:b];
+  UIView *anchor=prev?:msg;
+  [card.contentView addConstraints:@[
+   [NSLayoutConstraint constraintWithItem:line attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:anchor attribute:NSLayoutAttributeBottom multiplier:1 constant:6],
+   [NSLayoutConstraint constraintWithItem:line attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeLeading multiplier:1 constant:0],
+   [NSLayoutConstraint constraintWithItem:line attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeTrailing multiplier:1 constant:0],
+   [NSLayoutConstraint constraintWithItem:line attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:0.5],
+   [NSLayoutConstraint constraintWithItem:b attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:line attribute:NSLayoutAttributeBottom multiplier:1 constant:0],
+   [NSLayoutConstraint constraintWithItem:b attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeLeading multiplier:1 constant:0],
+   [NSLayoutConstraint constraintWithItem:b attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeTrailing multiplier:1 constant:0],
+   [NSLayoutConstraint constraintWithItem:b attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:44]
+  ]];
+  prev=b;
+ }
+ [card.contentView addConstraints:@[
+  [NSLayoutConstraint constraintWithItem:title attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeTop multiplier:1 constant:18],
+  [NSLayoutConstraint constraintWithItem:title attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeLeading multiplier:1 constant:20],
+  [NSLayoutConstraint constraintWithItem:title attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeTrailing multiplier:1 constant:-20],
+  [NSLayoutConstraint constraintWithItem:msg attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:title attribute:NSLayoutAttributeBottom multiplier:1 constant:5],
+  [NSLayoutConstraint constraintWithItem:msg attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeLeading multiplier:1 constant:16],
+  [NSLayoutConstraint constraintWithItem:msg attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeTrailing multiplier:1 constant:-16],
+  [NSLayoutConstraint constraintWithItem:self.picker attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:msg attribute:NSLayoutAttributeBottom multiplier:1 constant:2],
+  [NSLayoutConstraint constraintWithItem:self.picker attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeLeading multiplier:1 constant:0],
+  [NSLayoutConstraint constraintWithItem:self.picker attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeTrailing multiplier:1 constant:0],
+  [NSLayoutConstraint constraintWithItem:self.picker attribute:NSLayoutAttributeHeight relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:170],
+  [NSLayoutConstraint constraintWithItem:prev attribute:NSLayoutAttributeBottom relatedBy:NSLayoutRelationEqual toItem:card.contentView attribute:NSLayoutAttributeBottom multiplier:1 constant:0]
+ ]];
+ [self.view addConstraints:@[
+  [NSLayoutConstraint constraintWithItem:card attribute:NSLayoutAttributeCenterX relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterX multiplier:1 constant:0],
+  [NSLayoutConstraint constraintWithItem:card attribute:NSLayoutAttributeCenterY relatedBy:NSLayoutRelationEqual toItem:self.view attribute:NSLayoutAttributeCenterY multiplier:1 constant:0],
+  [NSLayoutConstraint constraintWithItem:card attribute:NSLayoutAttributeWidth relatedBy:NSLayoutRelationEqual toItem:nil attribute:NSLayoutAttributeNotAnAttribute multiplier:1 constant:290]
+ ]];
+}
+- (void)saveTapped{[self dismissViewControllerAnimated:YES completion:nil];if(self.onSave)self.onSave(self.picker.date);}
+- (void)allTapped{[self dismissViewControllerAnimated:YES completion:nil];if(self.onClear)self.onClear();}
+- (void)cancelTapped{[self dismissViewControllerAnimated:YES completion:nil];}
+@end
 @implementation GSPanel
 - (void)viewDidLoad{
  [super viewDidLoad];GSInstallPhotosGlass();GSInstallNativeRouting();GSInstallUploadDiagnostics();GSInstallUnlimitedStorage();self.title=@"GoToHP";self.jobs=@[];self.statusText=GSL(@"Checking the connection…");self.statusLanguage=GSLanguage();
@@ -430,19 +487,11 @@
  [self sheet:a];
 }
 - (void)chooseBackupSince{
- UIAlertController *a=[UIAlertController alertControllerWithTitle:GSL(@"Backup start date") message:GSL(@"Only photos and videos taken on or after this date will be backed up.") preferredStyle:UIAlertControllerStyleAlert];
- UIDatePicker *picker=[[UIDatePicker alloc]init];picker.datePickerMode=UIDatePickerModeDate;picker.preferredDatePickerStyle=UIDatePickerStyleWheels;
- NSDate *since=GSBackupSinceDate();if(since)picker.date=since;
- [picker setTranslatesAutoresizingMaskIntoConstraints:NO];[a.view addSubview:picker];
- [a.view addConstraints:@[
-  [NSLayoutConstraint constraintWithItem:picker attribute:NSLayoutAttributeLeading relatedBy:NSLayoutRelationEqual toItem:a.view attribute:NSLayoutAttributeLeading multiplier:1 constant:16],
-  [NSLayoutConstraint constraintWithItem:picker attribute:NSLayoutAttributeTrailing relatedBy:NSLayoutRelationEqual toItem:a.view attribute:NSLayoutAttributeTrailing multiplier:1 constant:-16],
-  [NSLayoutConstraint constraintWithItem:picker attribute:NSLayoutAttributeTop relatedBy:NSLayoutRelationEqual toItem:a.view attribute:NSLayoutAttributeTop multiplier:1 constant:64]
- ]];
- [a addAction:[UIAlertAction actionWithTitle:GSL(@"All photos") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){GSSetBackupSinceDate(nil);[self reloadTablePreservingPosition];}]];
- [a addAction:[UIAlertAction actionWithTitle:GSL(@"Save") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){GSSetBackupSinceDate(picker.date);[self reloadTablePreservingPosition];}]];
- [a addAction:[UIAlertAction actionWithTitle:GSL(@"Cancel") style:UIAlertActionStyleCancel handler:nil]];
- [self sheet:a];
+ GSDateSheet *v=[GSDateSheet new];
+ v.modalPresentationStyle=UIModalPresentationOverFullScreen;
+ v.onSave=^(NSDate *date){GSSetBackupSinceDate(date);[self reloadTablePreservingPosition];};
+ v.onClear=^{GSSetBackupSinceDate(nil);[self reloadTablePreservingPosition];};
+ [self presentViewController:v animated:YES completion:nil];
 }
 - (void)choose{
  if(![self.accounts[@"selected"]length]){[self message:GS_ACCOUNT_HELP];return;}
