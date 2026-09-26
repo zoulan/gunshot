@@ -342,7 +342,7 @@
 - (void)chooseValueForControl:(NSInteger)control{
  NSString *key=@[@"quality",@"concurrent",@"retries"][control];
  UIAlertController *sheet=[UIAlertController alertControllerWithTitle:@[GSL(@"Quality"),GSL(@"Concurrent uploads"),GSL(@"Retry limit")][control] message:nil preferredStyle:UIAlertControllerStyleActionSheet];
- NSArray *values=control==0?@[@"original",@"saver",@"quota"]:control==1?@[@1,@2,@3,@4]:@[@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10];
+ NSArray *values=control==0?@[@"original",@"saver",@"quota"]:control==1?@[@1,@2,@3,@4,@5,@6,@7,@8,@9,@10]:@[@0,@1,@2,@3,@4,@5,@6,@7,@8,@9,@10];
  for(id value in values){
   NSString *title=control==0?[self qualityTitle:value]:[NSString stringWithFormat:@"%@ %@",value,control==1?GSL(@"uploads"):GSL(@"retries")];
   if([value isEqual:self.options[key]])title=[@"✓ " stringByAppendingString:title];

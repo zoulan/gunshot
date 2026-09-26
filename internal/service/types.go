@@ -32,7 +32,7 @@ func defaults() Options {
 	return Options{Quality: "original", Concurrent: 1, Retries: 3, WiFiOnly: true}
 }
 func (o Options) valid() bool {
-	return validQuality(o.Quality) && o.Concurrent >= 1 && o.Concurrent <= 4 && o.Retries >= 0 && o.Retries <= 10
+	return validQuality(o.Quality) && o.Concurrent >= 1 && o.Concurrent <= 10 && o.Retries >= 0 && o.Retries <= 10
 }
 func validQuality(q string) bool { return q == "original" || q == "saver" || q == "quota" }
 
