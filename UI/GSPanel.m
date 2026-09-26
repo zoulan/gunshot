@@ -291,7 +291,8 @@
   if(control==7)cell.textLabel.textColor=UIColor.systemRedColor;
   if(control==20){cell.textLabel.textColor=UIColor.systemRedColor;cell.accessoryType=UITableViewCellAccessoryNone;}
   if(control==21||control==22){NSDate *since=GSBackupSinceDate();NSDateFormatter *f=[NSDateFormatter new];[f setLocalizedDateFormatFromTemplate:@"MMMd"];NSString *ds=since?[f stringFromDate:since]:nil;
-   cell.accessoryType=(control==21?!since:since)?UITableViewCellAccessoryCheckmark:UITableViewCellAccessoryNone;
+   BOOL marked=control==21?(since==nil):(since!=nil);
+   cell.accessoryType=marked?UITableViewCellAccessoryCheckmark:UITableViewCellAccessoryNone;
    if(control==22){NSString *d=ds?:GSL(@"Not set");NSMutableAttributedString *s=[[NSMutableAttributedString alloc]initWithString:[NSString stringWithFormat:GSL(@"Back up new photos: %@"),d] attributes:@{NSForegroundColorAttributeName:UIColor.labelColor}];NSRange r=[s.string rangeOfString:d];if(r.location!=NSNotFound)[s addAttributes:@{NSForegroundColorAttributeName:UIColor.systemBlueColor} range:r];cell.textLabel.attributedText=s;}
   }
   if((control>=3&&control<=5)||control==10||control==11||control==16||control==19){
