@@ -120,7 +120,7 @@ static void CheckRealSheetPresentation(GSPanel *panel,void(^next)(void)){
  },[NSDate dateWithTimeIntervalSinceNow:5]);
 }
 static void CheckStationaryPolling(GSPanel *panel,UIWindow *window,void(^next)(void)){
- NSIndexPath *path=[NSIndexPath indexPathForRow:1 inSection:7];
+ NSIndexPath *path=[NSIndexPath indexPathForRow:1 inSection:6];
  // Offscreen rows keep estimated heights until a reload re-measures them, so the first
  // position-preserving reload after the scroll still shifts geometry. Run the same
  // reload the refresh path uses until the layout reaches its fixed point, then capture
@@ -183,7 +183,7 @@ static void CheckStationaryPolling(GSPanel *panel,UIWindow *window,void(^next)(v
   if(![runtime[@"conditionsAccepted"]boolValue]||!SnapshotDuringAuthorization||![runtime[@"coreReady"]boolValue]||![runtime[@"foreground"]boolValue]||![runtime[@"path"]isEqual:@"satisfied"]){Finish(NO,@"embedded runtime state or nonblocking authorization snapshot failed");return;}
   NSSet *allowed=[NSSet setWithArray:@[@"uploadSummary",@"coreReady",@"conditionsAccepted",@"foreground",@"path",@"networkOnline",@"wifi",@"charging",@"authorization"]];
   if(![[NSSet setWithArray:runtime.allKeys]isSubsetOfSet:allowed]){Finish(NO,@"unexpected diagnostic fields");return;}
-  GSPanel *panel=Panel(root);if([panel.tableView numberOfSections]!=9||[panel.tableView numberOfRowsInSection:3]!=2||[panel.tableView numberOfRowsInSection:7]!=3){Finish(NO,@"settings sections or appearance rows incorrect");return;}
+  GSPanel *panel=Panel(root);if([panel.tableView numberOfSections]!=8||[panel.tableView numberOfRowsInSection:6]!=3){Finish(NO,@"settings sections or appearance rows incorrect");return;}
   GSFixtureRetryPanel *retryPanel=[GSFixtureRetryPanel new];retryPanel.settingsMode=YES;
   [retryPanel setValue:[@{@"retries":@7,@"concurrent":@2,@"quality":@"original"}mutableCopy] forKey:@"options"];
   retryPanel.view.frame=CGRectMake(0,0,390,844);
@@ -208,7 +208,7 @@ static void CheckStationaryPolling(GSPanel *panel,UIWindow *window,void(^next)(v
    if(fabs(CGRectGetMidX(retryPopover.sourceRect)-CGRectGetMidX(row))>1||fabs(CGRectGetMaxY(retryPopover.sourceRect)-(CGRectGetMaxY(row)-2))>1){Finish(NO,@"sheet sourceRect must match the selected row");return;}
   }
   if(retryPopover.sourceView==retryPanel.view&&fabs(retryPopover.sourceRect.origin.y-80)<1){Finish(NO,@"sheet must not use the hardcoded y=80 anchor");return;}
-  NSIndexPath *languagePath=[NSIndexPath indexPathForRow:0 inSection:7];
+  NSIndexPath *languagePath=[NSIndexPath indexPathForRow:0 inSection:6];
   [retryPanel.tableView scrollToRowAtIndexPath:languagePath atScrollPosition:UITableViewScrollPositionMiddle animated:NO];
   [retryPanel.tableView layoutIfNeeded];
   [retryPanel tableView:retryPanel.tableView didSelectRowAtIndexPath:languagePath];
@@ -240,7 +240,7 @@ static void CheckStationaryPolling(GSPanel *panel,UIWindow *window,void(^next)(v
   UITableViewCell *status=[panel tableView:panel.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
   if(![status.detailTextLabel.text isEqual:@"Authenticated · Ready to upload"]){Finish(NO,@"cached status language did not update");return;}
   if(!GSCheckPhotosGlass(panel,self.window)){Finish(NO,@"Google Photos bottom bar glass regression");return;}
-  NSIndexPath *storagePath=[NSIndexPath indexPathForRow:1 inSection:7];
+  NSIndexPath *storagePath=[NSIndexPath indexPathForRow:1 inSection:6];
   [panel setValue:@YES forKey:@"busy"];
   UITableViewCell *storage=[panel tableView:panel.tableView cellForRowAtIndexPath:storagePath];
   UISwitch *toggle=(UISwitch *)storage.accessoryView;
@@ -252,7 +252,7 @@ static void CheckStationaryPolling(GSPanel *panel,UIWindow *window,void(^next)(v
   [panel setValue:@NO forKey:@"busy"];[panel.tableView reloadData];
   Capture(self.window,@"settings-english.png");
   GSSetLanguage(@"ja");[panel viewWillAppear:NO];
-  [panel.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:8] atScrollPosition:UITableViewScrollPositionBottom animated:NO];
+  [panel.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:7] atScrollPosition:UITableViewScrollPositionBottom animated:NO];
   Capture(self.window,@"settings-history.png");
   CheckStationaryPolling(panel,self.window,^{
   [root dismissViewControllerAnimated:NO completion:^{

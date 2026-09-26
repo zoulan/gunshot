@@ -136,11 +136,9 @@
   "No accessible photos in this album. Check photo permissions.": "Không có ảnh nào có thể truy cập trong album này. Kiểm tra quyền đối với ảnh.",
   "Cancel all uploads": "Hủy tất cả bản tải lên",
   "Cancel every pending and in-progress upload?": "Hủy mọi mục đang chờ và đang tải lên?",
+  "Backup start date": "Ngày bắt đầu sao lưu",
   "All photos": "Tất cả ảnh",
+  "Only photos and videos taken on or after this date will be backed up.": "Chỉ sao lưu ảnh và video được tạo từ ngày này trở đi.",
   "Save": "Lưu",
-  "\nSkipped %lu (before start date)": "\nĐã bỏ qua %lu (trước ngày bắt đầu)",
-  "Back up all photos": "Sao lưu tất cả ảnh",
-  "Back up new photos: %@": "Sao lưu ảnh mới: từ %@",
-  "Backup time range": "Chọn khoảng thời gian sao lưu",
-  "Not set": "Chưa đặt"
+  "\nSkipped %lu (before start date)": "\nĐã bỏ qua %lu (trước ngày bắt đầu)"
 }
