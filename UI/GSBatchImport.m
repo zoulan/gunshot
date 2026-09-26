@@ -36,7 +36,7 @@ BOOL GSStartBatchImport(NSUInteger count,NSString *source,BOOL assets,GSBatchIte
  NSCAssert(NSThread.isMainThread,@"Start import on main");
  if(!count||!provider||!account.length)return NO;
  GSImportBatch *batch=[GSImportBatch new];batch.account=[account copy];batch.identity=[identity copy];
- source=source&&[@[@"picker",@"album",@"share"]containsObject:source]?source:@"share";
+ source=source&&[@[@"picker",@"album",@"date",@"share"]containsObject:source]?source:@"share";
  NSMutableDictionary *state=[@{@"active":@YES,@"source":source,@"total":@(count),@"processed":@0,@"queued":@0,@"failed":@0,@"remaining":@(count),@"stage":@"starting"}mutableCopy];
  @synchronized(GSImportBatch.class){
   if(GSCurrentBatch)return NO;

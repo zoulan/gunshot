@@ -116,7 +116,6 @@
   "Queued uploads continue while authorization is available. Reopen Google Photos to refresh authorization when needed.": "认证有效期间队列会继续上传，需要时重新打开 Google Photos 刷新认证状态",
   "Open Google Photos and reconnect to refresh authorization.": "打开 Google Photos 并重连以刷新认证状态",
   "Enable Google Photos backup for automatic uploads. GoToHP controls the quality. Keep the app open until the originals are queued; the daemon then uploads while authorization is available.": "开启 Google Photos 备份来自动上传并由 GoToHP 控制图片画质。在所有的原图排入队列之前请保持 App 开启，随后图片将由守护进程在认证可用时自动上传",
-  "For large batches, choose an album. The photo picker is limited to 100 items per selection.\n": "照片选择器每次最多 100 项，批量上传时请改用相册\n",
   "Choose album": "选择相册",
   "Stop preparing": "停止准备",
   "Upload an entire album; browse folders to choose an album.": "上传整个相册 (浏览文件夹选择)",
@@ -133,5 +132,16 @@
   "Open folder": "打开文件夹",
   "Upload all accessible photos and videos": "上传所有可读取的媒体",
   "Add %lu items to the queue? Originals are prepared one at a time. Keep the app open.": "是否要添加 %lu 项内容到队列？原图的准备工作将逐一进行，请保持 App 开启",
-  "No accessible photos in this album. Check photo permissions.": "此相册中无可访问的图片，请检查访问权限"
+  "No accessible photos in this album. Check photo permissions.": "此相册中无可访问的图片，请检查访问权限",
+  "For large batches, choose an album or a start date. The photo picker is limited to 100 items per selection.\n": "照片选择器每次最多 100 项，批量上传时请改用相册或起始日期\n",
+  "Clear all upload tasks": "清除所有上传任务",
+  "Cancel every unfinished upload and empty the list.": "取消所有未完成的上传并清空列表",
+  "Cancel %lu unfinished uploads and empty the list? Media already saved in Google Photos is not deleted.": "取消 %lu 项未完成的上传并清空列表？已保存到 Google Photos 的内容不会被删除",
+  "Clear": "清除",
+  "Choose by date": "按日期选择",
+  "Upload photos and videos created on or after the chosen date.": "上传所选日期当天及之后创建的照片和视频",
+  "Choose a start date": "选择起始日期",
+  "No photos found after this date. Check photo library access.": "该日期之后没有找到照片，请检查照片访问权限",
+  "Remove every upload from the list?": "从列表中移除所有上传记录？",
+  "Continue": "继续"
 }

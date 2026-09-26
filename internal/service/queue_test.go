@@ -318,3 +318,77 @@ func TestOriginalDoesNotReuseLegacyUnverifiedCompletion(t *testing.T) {
 		t.Fatal("current original completion was not deduplicated")
 	}
 }
+
+func TestCancelAllClearsEverything(t *testing.T) {
+	started := make(chan struct{})
+	e := newEngine(t, func(ctx context.Context, _ []string, _ string, _ string, cb func(Progress)) (string, error) {
+		close(started)
+		<-ctx.Done()
+		return "", ctx.Err()
+	})
+	completed := importTest(t, e, "original")
+	completed.State = "completed"
+	completed.MediaKey = "committed-key"
+	history := importTest(t, e, "saver")
+	history.State = "cancelled"
+	active := importTest(t, e, "quota")
+	e.online = true
+	e.wifi = true
+	e.Tick()
+	select {
+	case <-started:
+	case <-time.After(3 * time.Second):
+		t.Fatal("upload did not start")
+	}
+	e.mu.Lock()
+	_, err := e.handle(Request{Op: "cancel_all"}, "settings")
+	e.mu.Unlock()
+	waitIdle(t, e)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(e.state.Jobs) != 0 {
+		t.Fatalf("history survived cancel_all: %d jobs", len(e.state.Jobs))
+	}
+	if e.find(completed.ID) != nil || e.find(history.ID) != nil || e.find(active.ID) != nil {
+		t.Fatal("cleared jobs still resolvable")
+	}
+	for _, j := range []*Job{completed, history, active} {
+		if _, err := os.Stat(e.jobDir(j.ID)); !os.IsNotExist(err) {
+			t.Fatalf("staging survived cancel_all: %s", j.ID)
+		}
+	}
+	b, _ := os.ReadFile(filepath.Join(e.root, "state.json"))
+	if strings.Contains(string(b), completed.ID) || strings.Contains(string(b), active.ID) {
+		t.Fatal("cleared jobs persisted")
+	}
+	// The engine must keep accepting work after the list was emptied.
+	next := importTest(t, e, "original")
+	if next.State != "pending" {
+		t.Fatalf("queue unusable after cancel_all: %s", next.State)
+	}
+}
+
+func TestCancelAllOnEmptyQueue(t *testing.T) {
+	e := newEngine(t, nil)
+	e.mu.Lock()
+	_, err := e.handle(Request{Op: "cancel_all"}, "settings")
+	e.mu.Unlock()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(e.state.Jobs) != 0 {
+		t.Fatal("empty queue changed by cancel_all")
+	}
+}
+
+func TestCancelAllRoleBoundaries(t *testing.T) {
+	for _, role := range []string{"settings", "googlephotos", "photos"} {
+		if !roleAllowed(role, "cancel_all") {
+			t.Fatalf("cancel_all denied for %s", role)
+		}
+	}
+	if roleAllowed("daemon", "cancel_all") {
+		t.Fatal("daemon must not clear the queue")
+	}
+}

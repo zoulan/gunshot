@@ -226,12 +226,18 @@ static void CheckStationaryPolling(GSPanel *panel,UIWindow *window,void(^next)(v
   Capture(self.window,@"settings-light.png");
   GSSetLanguage(@"en");[panel viewWillAppear:NO];
   GSPanel *uploads=[[GSPanel alloc]initWithStyle:UITableViewStyleInsetGrouped];
-  if([uploads tableView:panel.tableView numberOfRowsInSection:1]!=3){Finish(NO,@"bulk upload controls missing");return;}
+  if([uploads tableView:panel.tableView numberOfRowsInSection:1]!=5){Finish(NO,@"bulk upload controls missing");return;}
   UITableViewCell *album=[uploads tableView:panel.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:1]];
-  UITableViewCell *stop=[uploads tableView:panel.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:1]];
+  UITableViewCell *stop=[uploads tableView:panel.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:1]];
   if(![album.textLabel.text isEqual:@"Choose album"]||![stop.textLabel.text isEqual:@"Stop preparing"]||![album.detailTextLabel.text containsString:@"entire album"]){Finish(NO,@"album import labels missing");return;}
+  UITableViewCell *date=[uploads tableView:panel.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:1]];
+  if(![date.textLabel.text isEqual:@"Choose by date"]||![date.detailTextLabel.text containsString:@"created on or after"]){Finish(NO,@"date import labels missing");return;}
+  UITableViewCell *clearAll=[uploads tableView:panel.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:4 inSection:1]];
+  if(![clearAll.textLabel.text isEqual:@"Clear all upload tasks"]||!clearAll.textLabel.textColor||clearAll.accessoryType!=UITableViewCellAccessoryNone||![clearAll.detailTextLabel.text containsString:@"empty the list"]){Finish(NO,@"clear all row missing");return;}
   UITableViewCell *quality=[panel tableView:panel.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:2]];
   if(![quality.textLabel.text isEqual:@"Quality"]||![panel.navigationItem.rightBarButtonItem.title isEqual:@"Reconnect"]){Finish(NO,@"English settings did not update");return;}
+  UITableViewCell *clearQueue=[panel tableView:panel.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:2 inSection:4]];
+  if(![clearQueue.textLabel.text isEqual:@"Clear all upload tasks"]){Finish(NO,@"settings clear-all row missing");return;}
   // Standard navigation items must retain localized titles and actions.
   if(![panel.navigationItem.leftBarButtonItem.title isEqual:@"Done"]||![panel.navigationItem.rightBarButtonItems[1].title isEqual:@"Uploads"]){Finish(NO,@"navigation labels did not update");return;}
   for(UIBarButtonItem *item in @[panel.navigationItem.leftBarButtonItem,panel.navigationItem.rightBarButtonItems[0],panel.navigationItem.rightBarButtonItems[1]]){

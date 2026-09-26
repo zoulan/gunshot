@@ -116,7 +116,6 @@
   "Queued uploads continue while authorization is available. Reopen Google Photos to refresh authorization when needed.": "認証が有効な間は、アプリを閉じてもキューの送信が続きます。認証の更新が必要になったらGoogle Photosを開いてください。",
   "Open Google Photos and reconnect to refresh authorization.": "Google Photosでアカウントを再接続して、認証を更新してください。",
   "Enable Google Photos backup for automatic uploads. GoToHP controls the quality. Keep the app open until the originals are queued; the daemon then uploads while authorization is available.": "自動送信には Google Photos 側のバックアップもオンにしてください。画質は GoToHP の設定を使います。原本をキューへ取り込むまでアプリを開き、その後は認証が有効な間 daemon が送信します。",
-  "For large batches, choose an album. The photo picker is limited to 100 items per selection.\n": "大量に送る場合はアルバムを選択してください。写真ピッカーは1回100件までです。\n",
   "Choose album": "アルバムを選択",
   "Stop preparing": "取込準備を停止",
   "Upload an entire album; browse folders to choose an album.": "アルバム全体をアップロードします。フォルダ内のアルバムも選べます。",
@@ -133,5 +132,16 @@
   "Open folder": "フォルダを開く",
   "Upload all accessible photos and videos": "アクセス可能な写真・動画をまとめてアップロード",
   "Add %lu items to the queue? Originals are prepared one at a time. Keep the app open.": "%lu件をキューに追加しますか？原本を1件ずつ準備します。アプリを開いたままにしてください。",
-  "No accessible photos in this album. Check photo permissions.": "このアルバムにアクセス可能な写真がありません。写真のアクセス権を確認してください。"
+  "No accessible photos in this album. Check photo permissions.": "このアルバムにアクセス可能な写真がありません。写真のアクセス権を確認してください。",
+  "For large batches, choose an album or a start date. The photo picker is limited to 100 items per selection.\n": "大量に送る場合はアルバムまたは開始日を選択してください。写真ピッカーは1回100件までです。\n",
+  "Clear all upload tasks": "すべてのアップロードタスクを消去",
+  "Cancel every unfinished upload and empty the list.": "未完了のアップロードをすべてキャンセルしてリストを空にします。",
+  "Cancel %lu unfinished uploads and empty the list? Media already saved in Google Photos is not deleted.": "%lu件の未完了アップロードをキャンセルしてリストを空にしますか？Google Photosに保存済みのメディアは削除されません。",
+  "Clear": "消去",
+  "Choose by date": "日付で選択",
+  "Upload photos and videos created on or after the chosen date.": "選択した日付以降に作成された写真と動画をアップロードします。",
+  "Choose a start date": "開始日を選択",
+  "No photos found after this date. Check photo library access.": "この日付以降の写真が見つかりません。写真へのアクセス権を確認してください。",
+  "Remove every upload from the list?": "すべてのアップロードをリストから削除しますか？",
+  "Continue": "続ける"
 }

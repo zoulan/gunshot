@@ -6,6 +6,7 @@ GUNSHOT_UI_FILES = \
 	GSPhotosGlassVisibilityGuard.m \
 	GSBatchImport.m \
 	GSAlbumPicker.m \
+	GSDateSheet.m \
 	GSAccountMenu.m \
 	GSNativeAccount.m \
 	GSNativeRelay.m \

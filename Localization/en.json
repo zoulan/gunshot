@@ -116,7 +116,6 @@
   "Queued uploads continue while authorization is available. Reopen Google Photos to refresh authorization when needed.": "Queued uploads continue while authorization is available. Reopen Google Photos to refresh authorization when needed.",
   "Open Google Photos and reconnect to refresh authorization.": "Open Google Photos and reconnect to refresh authorization.",
   "Enable Google Photos backup for automatic uploads. GoToHP controls the quality. Keep the app open until the originals are queued; the daemon then uploads while authorization is available.": "Enable Google Photos backup for automatic uploads. GoToHP controls the quality. Keep the app open until the originals are queued; the daemon then uploads while authorization is available.",
-  "For large batches, choose an album. The photo picker is limited to 100 items per selection.\n": "For large batches, choose an album. The photo picker is limited to 100 items per selection.\n",
   "Choose album": "Choose album",
   "Stop preparing": "Stop preparing",
   "Upload an entire album; browse folders to choose an album.": "Upload an entire album; browse folders to choose an album.",
@@ -133,5 +132,16 @@
   "Open folder": "Open folder",
   "Upload all accessible photos and videos": "Upload all accessible photos and videos",
   "Add %lu items to the queue? Originals are prepared one at a time. Keep the app open.": "Add %lu items to the queue? Originals are prepared one at a time. Keep the app open.",
-  "No accessible photos in this album. Check photo permissions.": "No accessible photos in this album. Check photo permissions."
+  "No accessible photos in this album. Check photo permissions.": "No accessible photos in this album. Check photo permissions.",
+  "For large batches, choose an album or a start date. The photo picker is limited to 100 items per selection.\n": "For large batches, choose an album or a start date. The photo picker is limited to 100 items per selection.\n",
+  "Clear all upload tasks": "Clear all upload tasks",
+  "Cancel every unfinished upload and empty the list.": "Cancel every unfinished upload and empty the list.",
+  "Cancel %lu unfinished uploads and empty the list? Media already saved in Google Photos is not deleted.": "Cancel %lu unfinished uploads and empty the list? Media already saved in Google Photos is not deleted.",
+  "Clear": "Clear",
+  "Choose by date": "Choose by date",
+  "Upload photos and videos created on or after the chosen date.": "Upload photos and videos created on or after the chosen date.",
+  "Choose a start date": "Choose a start date",
+  "No photos found after this date. Check photo library access.": "No photos found after this date. Check photo library access.",
+  "Remove every upload from the list?": "Remove every upload from the list?",
+  "Continue": "Continue"
 }

@@ -4,6 +4,7 @@
 #import "GSExporter.h"
 #import "GSBatchImport.h"
 #import "GSAlbumPicker.h"
+#import "GSDateSheet.h"
 #import "GSNativeAccount.h"
 #import "GSAccountConnection.h"
 #if !GS_JAILED
@@ -162,14 +163,14 @@
  });
 }
 - (NSArray<NSDictionary *> *)controlSections{
- if(!self.settingsMode)return @[@{@"title":GSL(@"Uploads"),@"rows":@[@14,@17,@18],@"footer":[GSL(@"For large batches, choose an album. The photo picker is limited to 100 items per selection.\n") stringByAppendingString:GS_QUEUED_HELP]}];
+ if(!self.settingsMode)return @[@{@"title":GSL(@"Uploads"),@"rows":@[@14,@17,@21,@18,@20],@"footer":[GSL(@"For large batches, choose an album or a start date. The photo picker is limited to 100 items per selection.\n") stringByAppendingString:GS_QUEUED_HELP]}];
  NSMutableArray *groups=[NSMutableArray array];
  NSArray *accountRows=@[@13,@6,@7];
  if(GSIsGooglePhotos())accountRows=@[@13];
  [groups addObject:@{@"title":GSL(@"Account"),@"rows":accountRows}];
  [groups addObject:@{@"title":GSL(@"Upload settings"),@"rows":@[@0,@1,@2,@3,@4,@5],@"footer":[GSL(@"Pixel 1 requests original quality without storage usage (Pixel XL). Quality is fixed when queued. Verify storage usage and original data in Google Photos.\n") stringByAppendingString:GS_QUEUED_HELP]}];
  if(GSIsGooglePhotos())[groups addObject:@{@"title":GSL(@"Google Photos integration"),@"rows":@[@10],@"footer":GS_BACKUP_HELP}];
- [groups addObject:@{@"title":GSL(@"Queue management"),@"rows":@[@8,@9]}];
+ [groups addObject:@{@"title":GSL(@"Queue management"),@"rows":@[@8,@9,@20]}];
  if(GSIsGooglePhotos())[groups addObject:@{@"title":GSL(@"Diagnostics"),@"rows":@[@11,@12],@"footer":GSL(@"Troubleshoot compatibility. Tokens and media are never recorded.")}];
  [groups addObject:@{@"title":GSL(@"Appearance"),@"rows":GSIsGooglePhotos()?@[@15,@16,@19]:@[@15],@"footer":GSIsGooglePhotos()?GSL(@"Reopen the profile menu to apply changes. Unlimited storage affects only the display; account limits and upload quality stay unchanged."):GSL(@"Reopen the profile menu to update its language.")}];
  return groups;
@@ -234,12 +235,14 @@
  }
  NSInteger control=[self controlAtPath:path];
  if(control>=0){
-  NSArray *titles=@[GSL(@"Quality"),GSL(@"Concurrent uploads"),GSL(@"Retry limit"),GSL(@"Wi-Fi only"),GSL(@"Charging only"),GSL(@"Pause uploads"),GSL(@"Destination account"),GSL(@"Remove account from GoToHP"),GSL(@"Retry failed uploads"),GSL(@"Clear completed history"),GS_BACKUP_TITLE,GSL(@"Upload diagnostics"),GSL(@"Export diagnostics"),GSL(@"Connect or refresh account"),GSL(@"Choose photos and videos"),GSL(@"Language"),GSL(@"Show unlimited storage"),GSL(@"Choose album"),GSL(@"Stop preparing"),@"Google Photos · Liquid Glass"];
-  NSArray *icons=@[@"photo",@"square.stack.3d.up",@"arrow.clockwise",@"wifi",@"battery.100.bolt",@"pause.circle",@"person.crop.circle.badge.checkmark",@"person.crop.circle.badge.minus",@"arrow.clockwise.circle",@"checkmark.circle",@"arrow.triangle.branch",@"waveform.path.ecg",@"square.and.arrow.up",@"person.crop.circle.badge.checkmark",@"plus.circle",@"globe",@"cloud",@"rectangle.stack",@"stop.circle",@"rectangle.bottomhalf.inset.filled"];
+  NSArray *titles=@[GSL(@"Quality"),GSL(@"Concurrent uploads"),GSL(@"Retry limit"),GSL(@"Wi-Fi only"),GSL(@"Charging only"),GSL(@"Pause uploads"),GSL(@"Destination account"),GSL(@"Remove account from GoToHP"),GSL(@"Retry failed uploads"),GSL(@"Clear completed history"),GS_BACKUP_TITLE,GSL(@"Upload diagnostics"),GSL(@"Export diagnostics"),GSL(@"Connect or refresh account"),GSL(@"Choose photos and videos"),GSL(@"Language"),GSL(@"Show unlimited storage"),GSL(@"Choose album"),GSL(@"Stop preparing"),@"Google Photos · Liquid Glass",GSL(@"Clear all upload tasks"),GSL(@"Choose by date")];
+  NSArray *icons=@[@"photo",@"square.stack.3d.up",@"arrow.clockwise",@"wifi",@"battery.100.bolt",@"pause.circle",@"person.crop.circle.badge.checkmark",@"person.crop.circle.badge.minus",@"arrow.clockwise.circle",@"checkmark.circle",@"arrow.triangle.branch",@"waveform.path.ecg",@"square.and.arrow.up",@"person.crop.circle.badge.checkmark",@"plus.circle",@"globe",@"cloud",@"rectangle.stack",@"stop.circle",@"rectangle.bottomhalf.inset.filled",@"trash",@"calendar"];
   cell.textLabel.text=titles[control];cell.imageView.image=[UIImage systemImageNamed:icons[control]];
   cell.accessoryType=UITableViewCellAccessoryDisclosureIndicator;
   if(control==17)cell.detailTextLabel.text=GSL(@"Upload an entire album; browse folders to choose an album.");
   if(control==18){BOOL active=[GSBatchImportSnapshot()[@"active"]boolValue];cell.textLabel.textColor=active?UIColor.systemRedColor:UIColor.secondaryLabelColor;cell.accessoryType=UITableViewCellAccessoryNone;cell.detailTextLabel.text=GSL(@"Stop after the current item. Queued uploads continue.");}
+  if(control==20){cell.textLabel.textColor=UIColor.systemRedColor;cell.accessoryType=UITableViewCellAccessoryNone;cell.detailTextLabel.text=GSL(@"Cancel every unfinished upload and empty the list.");}
+  if(control==21)cell.detailTextLabel.text=GSL(@"Upload photos and videos created on or after the chosen date.");
   if(control==15){
   NSString *code=GSLanguageOverride();
   NSDictionary *names=@{@"system":GSL(@"System default"),@"ja":GSL(@"Japanese"),@"zh-hans":GSL(@"Simplified Chinese"),@"vi":GSL(@"Vietnamese"),@"en":@"English"};
@@ -403,11 +406,13 @@
   if(control==15){[self chooseLanguage];return;}
   if(control==14){[self choose];return;}
   if(control==17){[self chooseAlbum];return;}
+  if(control==21){[self chooseByDate];return;}
   if(control==13){[self addAccount];return;}
   if(control==10){[self toggleNativeRouting];return;}
   if(control==11){GSSetUploadDiagnostics(!GSUploadDiagnosticsEnabled());[self reloadTablePreservingPosition];return;}
   if(control<3){[self chooseValueForControl:control];return;}
   if(control<6)return; // Use the visible switch; no hidden value cycling.
+  if(control==20){[self confirmClearAll];return;}
   if(control==6||control==7)[self accountAction:control==7];
   else [self request:@{@"op":control==8?@"retry_failed":@"clear_completed"}];
  }else if(path.section==self.queueSection&&path.row<self.jobs.count){
@@ -439,6 +444,46 @@
   };
   [self presentViewController:[[UINavigationController alloc]initWithRootViewController:albums] animated:YES completion:nil];
  });}];
+}
+- (void)chooseByDate{
+ if(![self.accounts[@"selected"]length]){[self message:GS_ACCOUNT_HELP];return;}
+ if(![NSBundle.mainBundle objectForInfoDictionaryKey:@"NSPhotoLibraryUsageDescription"]){[self message:GSL(@"This app cannot request access to your photos.")];return;}
+ [PHPhotoLibrary requestAuthorizationForAccessLevel:PHAccessLevelReadWrite handler:^(PHAuthorizationStatus status){dispatch_async(dispatch_get_main_queue(),^{
+  if(status!=PHAuthorizationStatusAuthorized&&status!=PHAuthorizationStatusLimited){[self message:GSL(@"Allow access to your photo library.")];return;}
+  GSDateSheet *sheet=[GSDateSheet new];
+  __weak GSPanel *weak=self;
+  sheet.selection=^(NSDate *date){[weak confirmDateImport:date];};
+  [self presentViewController:[[UINavigationController alloc]initWithRootViewController:sheet] animated:YES completion:nil];
+ });}];
+}
+- (void)confirmDateImport:(NSDate *)date{
+ if(self.busy||[GSBatchImportSnapshot()[@"active"]boolValue]){[self message:GSL(@"Wait for the operation to finish, then retry.")];return;}
+ dispatch_async(dispatch_get_global_queue(QOS_CLASS_UTILITY,0),^{@autoreleasepool{
+  PHFetchOptions *options=[PHFetchOptions new];options.includeHiddenAssets=NO;
+  options.predicate=[NSPredicate predicateWithFormat:@"creationDate >= %@",date];
+  options.sortDescriptors=@[[NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES]];
+  PHFetchResult<PHAsset *> *assets=[PHAsset fetchAssetsWithOptions:options];
+  dispatch_async(dispatch_get_main_queue(),^{
+   UIAlertController *confirm=[UIAlertController alertControllerWithTitle:GSL(@"Choose a start date") message:assets.count?[NSString stringWithFormat:GSL(@"Add %lu items to the queue? Originals are prepared one at a time. Keep the app open."),(unsigned long)assets.count]:GSL(@"No photos found after this date. Check photo library access.") preferredStyle:UIAlertControllerStyleAlert];
+   [confirm addAction:[UIAlertAction actionWithTitle:GSL(@"Cancel") style:UIAlertActionStyleCancel handler:nil]];
+   if(assets.count)[confirm addAction:[UIAlertAction actionWithTitle:GSL(@"Add") style:UIAlertActionStyleDefault handler:^(UIAlertAction *action){
+    [self startImportCount:assets.count source:@"date" assets:YES provider:^id(NSUInteger index){return [assets objectAtIndex:index];}];
+   }]];
+   [self sheet:confirm];
+  });
+ }]);
+}
+- (void)confirmClearAll{
+ NSUInteger unfinished=0;
+ for(NSDictionary *j in self.jobs){
+  NSString *state=j[@"state"];
+  if(![state isEqual:@"completed"]&&![state isEqual:@"cancelled"])unfinished++;
+ }
+ NSString *message=unfinished?[NSString stringWithFormat:GSL(@"Cancel %lu unfinished uploads and empty the list? Media already saved in Google Photos is not deleted."),(unsigned long)unfinished]:GSL(@"Remove every upload from the list?");
+ UIAlertController *a=[UIAlertController alertControllerWithTitle:GSL(@"Clear all upload tasks") message:message preferredStyle:UIAlertControllerStyleAlert];
+ [a addAction:[UIAlertAction actionWithTitle:GSL(@"Cancel") style:UIAlertActionStyleCancel handler:nil]];
+ [a addAction:[UIAlertAction actionWithTitle:GSL(@"Clear") style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action){[self request:@{@"op":@"cancel_all"}];}]];
+ [self sheet:a];
 }
 - (void)picker:(PHPickerViewController *)picker didFinishPicking:(NSArray<PHPickerResult *> *)results{
  // Retain identifiers only. PHPicker's item providers need not load any media.
