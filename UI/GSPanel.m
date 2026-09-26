@@ -471,7 +471,7 @@
    }]];
    [self sheet:confirm];
   });
- }]);
+ }});
 }
 - (void)confirmClearAll{
  NSUInteger unfinished=0;
